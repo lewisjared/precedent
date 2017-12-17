@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField()),
                 ('url', models.URLField()),
                 ('source', models.CharField(choices=[('gh', 'github')], default='gh', max_length=2)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='precident.Owner')),
+                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='precedent.Owner')),
             ],
             options={
                 'abstract': False,
@@ -61,6 +61,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='package',
             name='repo',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='precident.Repo'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='precedent.Repo'),
         ),
     ]

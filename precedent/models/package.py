@@ -1,7 +1,7 @@
 from django.db import models
 from djchoices import ChoiceItem, DjangoChoices
 
-from precident.models.base import AddedModifiedModel
+from precedent.models.base import AddedModifiedModel
 
 
 class Package(AddedModifiedModel):
@@ -16,7 +16,7 @@ class Package(AddedModifiedModel):
     name = models.TextField()
     description = models.TextField()
     url = models.URLField()
-    repo = models.ForeignKey('precident.Repo', on_delete=models.DO_NOTHING)
+    repo = models.ForeignKey('precedent.Repo', on_delete=models.DO_NOTHING)
     language = models.CharField(max_length=2, choices=Language.choices)
     source = models.CharField(max_length=1, choices=Source.choices)
 

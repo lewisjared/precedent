@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'precident.apps.PrecidentConfig',
+    'precedent.apps.precedentConfig',
     'api.apps.ApiConfig',
     'rest_framework',
 ]
@@ -40,7 +40,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'precident.urls'
+ROOT_URLCONF = 'precedent.urls'
 
 TEMPLATES = [
     {
@@ -59,7 +59,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'precident.wsgi.application'
+WSGI_APPLICATION = 'precedent.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases

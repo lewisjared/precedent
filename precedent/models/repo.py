@@ -1,7 +1,7 @@
 from django.db import models
 from djchoices import ChoiceItem, DjangoChoices
 
-from precident.models.base import AddedModifiedModel
+from precedent.models.base import AddedModifiedModel
 
 
 class Repo(AddedModifiedModel):
@@ -11,7 +11,7 @@ class Repo(AddedModifiedModel):
     remote_id = models.IntegerField()
     name = models.TextField()
     full_name = models.TextField()
-    owner = models.ForeignKey('precident.Owner', on_delete=models.CASCADE)
+    owner = models.ForeignKey('precedent.Owner', on_delete=models.CASCADE)
 
     description = models.TextField()
     url = models.URLField()
