@@ -1,6 +1,22 @@
 from unittest import TestCase, mock
 
-from precedent.queue import ProcessingQueue
+from precedent.queues import ProcessingQueue, py_to_redis, redis_to_py
+
+
+class TestPyToRedis(TestCase):
+    def test_str(self):
+        self.assertEqual(py_to_redis('normal_string'), 'normal_string')
+
+    def test_dict(self):
+        self.assertEqual(py_to_redis({'test': 'item'}), '{"test": "item"}')
+
+
+class TestRedisToPy(TestCase):
+    def test_str(self):
+        self.assertEqual(redis_to_py(b'normal_string'), 'normal_string')
+
+    def test_dict(self):
+        self.assertEqual(redis_to_py(b'{"test": "item"}'), {'test': 'item'})
 
 
 class TestProcessingQueue(TestCase):
@@ -55,3 +71,10 @@ class TestProcessingQueue(TestCase):
         self.queue.item_complete('test_item')
         self.assertEqual(self.r.llen(self.queue.processing_list), 0)
 
+    def test_dict_item(self):
+        item = {
+            "item": "value"
+        }
+
+        self.queue.queue_item(item)
+        self.assertEqual(item, self.queue.get_next_item())

@@ -1,11 +1,25 @@
-from redis import Redis
+import json
 
 from django.conf import settings
+from redis import Redis
 
 
-def to_str(s):
+def redis_to_py(s):
     if s is not None:
-        return s.decode('ascii')
+        try:
+            s = s.decode('ascii')
+            return json.loads(s)
+        except ValueError:
+            return s
+
+
+def py_to_redis(s):
+    if isinstance(s, str):
+        return s
+    try:
+        return json.dumps(s)
+    except ValueError:
+        return s
 
 
 class ProcessingQueue(object):
@@ -14,6 +28,7 @@ class ProcessingQueue(object):
 
     Uses RPOPLPUSH redis command to enable the tracking of processing tasks. See https://redis.io/commands/rpoplpush for more information
     """
+
     def __init__(self, queue_name='github'):
         self._r = Redis.from_url(settings.REDIS_URL)
         self.pending_list = 'queue_' + queue_name
@@ -24,10 +39,10 @@ class ProcessingQueue(object):
         self._r.delete(self.pending_list, self.processing_list, self._to_delete_list)
 
     def queue_item(self, item):
-        self._r.lpush(self.pending_list, item)
+        self._r.lpush(self.pending_list, py_to_redis(item))
 
     def get_next_item(self):
-        return to_str(self._r.rpoplpush(self.pending_list, self.processing_list))
+        return redis_to_py(self._r.rpoplpush(self.pending_list, self.processing_list))
 
     def item_complete(self, item):
         self._r.lrem(self.processing_list, item, 0)
@@ -35,7 +50,8 @@ class ProcessingQueue(object):
     def check_for_timeouts(self):
         for i in range(self._r.llen(self._to_delete_list)):
             item = self._r.rpop(self._to_delete_list)
-            num_removed = self._r.lrem(self.processing_list, to_str(item), -1)
+            item = redis_to_py(item)
+            num_removed = self._r.lrem(self.processing_list, item, -1)
 
             # Requeue the item if it is still found in the processing queue
             if num_removed:
@@ -46,7 +62,6 @@ class ProcessingQueue(object):
             self._r.restore(self._to_delete_list, 0, self._r.dump(self.processing_list))
         else:
             self._r.delete(self._to_delete_list)
-
 
 
 queue = ProcessingQueue()
