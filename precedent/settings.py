@@ -105,7 +105,8 @@ STATIC_URL = '/static/'
 
 # Celery Configuration
 # Redis Broker with no result backend
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+CELERY_BROKER_URL = REDIS_URL
 CELERY_BROKER_HEARTBEAT = None  # We're using TCP keep-alive instead
 CELERY_BROKER_CONNECTION_TIMEOUT = 30  # May require a long timeout due to Linux DNS timeouts etc
 CELERY_RESULT_BACKEND = None
