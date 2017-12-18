@@ -1,8 +1,11 @@
 from unittest import TestCase, mock
 
+from precedent.models import Owner, Repo
 from precedent.spiders import GithubSpider, QueryException
-from github import RateLimitExceededException
+from github import RateLimitExceededException, ContentFile
 
+from github.Repository import Repository
+from github.NamedUser import NamedUser
 
 class MockGithub(object):
     total_count = 1
@@ -107,3 +110,29 @@ class TestGithubSpider(TestCase):
             })
         except QueryException as e:
             self.assertIn('rate limit', str(e))
+
+    def _create_example_resp(self):
+        m_owner = mock.Mock(spec=NamedUser, id=1)
+        m_owner.name = 'test'
+        m_owner.type = 'Organization'
+        m_owner.url = 'a'
+        m_owner.avatar_url = 'a'
+
+        m_repo = mock.Mock(spec=Repository, id=2, owner=m_owner)
+        m_repo.name = 'repo'
+        m_repo.full_name = 'test/repo'
+        m_repo.url = 'a'
+        m_repo.description = 'adgfzdf'
+        return mock.MagicMock(spec=ContentFile.ContentFile, repository=m_repo)
+
+    def test_serialize(self):
+        r = self._create_example_resp()
+        s = GithubSpider()
+
+        s._serialize_repo(r)
+        Owner.objects.get(name=r.repository.owner.name)
+
+        # Check that it is imdepontent
+        s._serialize_repo(r)
+        self.assertEqual(Owner.objects.count(), 1)
+        self.assertEqual(Repo.objects.count(), 1)

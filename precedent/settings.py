@@ -1,6 +1,10 @@
 import os
+from datetime import timedelta
 
 from celery.schedules import crontab
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,6 +32,7 @@ INSTALLED_APPS = [
     'precedent.apps.precedentConfig',
     'api.apps.ApiConfig',
     'rest_framework',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -81,12 +86,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
 ]
 
 # Internationalization
@@ -117,5 +116,16 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_REDIS_MAX_CONNECTIONS = 3
 
 # Celery periodic tasks
-CELERYBEAT_SCHEDULE = {
+CELERY_BEAT_SCHEDULE = {
+    'check_queues': {
+        'task': 'precedent.tasks.check_queues',
+        'schedule': 60
+    },
+    'process_queues': {
+        'task': 'precedent.tasks.process_queue',
+        'schedule': 6
+    },
 }
+
+# GITHUB SETTINGS
+GITHUB_ACCESS_TOKEN = os.environ.get('GITHUB_ACCESS_TOKEN')

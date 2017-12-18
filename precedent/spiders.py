@@ -3,7 +3,7 @@ from logging import getLogger
 from django.conf import settings
 from github import Github, RateLimitExceededException
 
-from precedent.models import Package, Repo
+from precedent.models import Package, Repo, Owner
 
 logger = getLogger(__name__)
 
@@ -43,7 +43,7 @@ class Spider(object):
 
 class GithubSpider(Spider):
     SEARCH_TERMS = {
-        Package.Source.npm: 'filename:package.json+-path=node_modules'
+        Package.Source.npm: 'filename:package.json -path=node_modules'
     }
     per_page = 100
 
@@ -51,13 +51,34 @@ class GithubSpider(Spider):
         self._g = Github(settings.GITHUB_ACCESS_TOKEN, per_page=self.per_page)
 
     def _serialize_repo(self, item):
-        return Repo.objects.create(
-
+        repo = item.repository
+        owner = repo.owner
+        owner, created = Owner.objects.update_or_create(remote_id=owner.id, source=Owner.Source.github, defaults={
+            'name': owner.name,
+            'type': Owner.OwnerType.organisation if owner.type == 'Organization' else Owner.OwnerType.user,
+            'url': owner.url,
+            'avatar_url': owner.avatar_url,
+            'source': Owner.Source.github
+        })
+        if created:
+            logger.info('new owner serialized: {}'.format(owner))
+        repo, created = Repo.objects.update_or_create(
+            remote_id=repo.id,
+            name=repo.name,
+            full_name=repo.full_name,
+            description=repo.description,
+            url=repo.url,
+            source=Repo.Source.github,
+            owner=owner
         )
+        if created:
+            logger.info('new repo serialized: {}'.format(repo))
+
+        return repo
 
     def get_terms(self, key, term):
         for size in range(10000):
-            term_size = term + '+size={}'.format(size)
+            term_size = term + ' size={}'.format(size)
             yield super(GithubSpider, self).get_terms(key, term_size)
 
     def process_query(self, query):
