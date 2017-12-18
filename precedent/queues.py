@@ -38,8 +38,17 @@ class ProcessingQueue(object):
     def clean_up(self):
         self._r.delete(self.pending_list, self.processing_list, self._to_delete_list)
 
-    def queue_item(self, item):
-        self._r.lpush(self.pending_list, py_to_redis(item))
+    def queue_item(self, item, head=False):
+        """
+        Queue up an item to be processed at a later date
+
+        :param item: The item to be queued. Can be either a dict, list or string
+        :param head: If True, put the item at the head of the queue to be processed next, else FILO
+        """
+        if head:
+            self._r.rpush(self.pending_list, py_to_redis(item))
+        else:
+            self._r.lpush(self.pending_list, py_to_redis(item))
 
     def get_next_item(self):
         return redis_to_py(self._r.rpoplpush(self.pending_list, self.processing_list))

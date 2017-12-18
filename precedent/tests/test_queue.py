@@ -35,6 +35,11 @@ class TestProcessingQueue(TestCase):
         self.queue.queue_item('another_item')
         self.assertEqual(self.r.llen(self.queue.pending_list), 2)
 
+    def test_add_item_head(self):
+        self.queue.queue_item('test_item')
+        self.queue.queue_item('another_item', head=True)
+        self.assertEqual(self.queue.get_next_item(), 'another_item')
+
     def test_get_item(self):
         self.queue.queue_item('test_item')
         self.queue.queue_item('another_item')
