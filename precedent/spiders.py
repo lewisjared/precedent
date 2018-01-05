@@ -28,7 +28,7 @@ class Spider(object):
         return {
             'type': key,
             'term': term,
-            'page': 1,
+            'page': 0,
         }
 
     def process_query(self, query):
