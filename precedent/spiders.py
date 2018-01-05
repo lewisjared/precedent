@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from django.conf import settings
-from github import Github, RateLimitExceededException
+from github import Github, RateLimitExceededException, GithubException
 
 from precedent.models import Package, Repo, Owner
 
@@ -85,9 +85,12 @@ class GithubSpider(Spider):
         try:
             search = self._g.search_code(query['term'])
             items = search.get_page(query['page'])
+            logger.info('found {} items'.format(len(items)))
             for item in items:
                 repo = self._serialize_repo(item)
                 repo.save()
+
+            logger.info('search ratelimit {}'.format(self._g.rate_limiting))
 
             if search.totalCount > query['page'] * self.per_page:
                 if query['page'] == 10:
@@ -104,4 +107,10 @@ class GithubSpider(Spider):
         except RateLimitExceededException:
             logger.warning('Rate limit exceeded. Requeue and try again')
             raise QueryException(query, 'rate limit exceeded. Requeue and try again')
+
+        except GithubException as e:
+            if e.data().get("message").lower().startswith('You have triggered an abuse detection mechanism'):
+                logger.warning('Rate limit exceeded. Requeue and try again')
+                raise QueryException(query, 'rate limit exceeded. Requeue and try again')
+
 

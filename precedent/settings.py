@@ -123,7 +123,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'process_queues': {
         'task': 'precedent.tasks.process_queue',
-        'schedule': 6
+        'schedule': 8
     },
 }
 
