@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('added', models.DateTimeField(default=django.utils.timezone.now)),
                 ('modified', models.DateTimeField(default=django.utils.timezone.now)),
-                ('name', models.TextField(null=True)),
+                ('name', models.TextField()),
                 ('description', models.TextField()),
                 ('url', models.URLField()),
                 ('language', models.CharField(choices=[('js', 'javascript'), ('py', 'python')], max_length=2)),

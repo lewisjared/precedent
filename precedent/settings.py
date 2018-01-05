@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 
+import dj_database_url
 from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
 
@@ -66,14 +67,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'precedent.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': dj_database_url.config(default='postgres://postgres@localhost/postgres', conn_max_age=600)
 }
 
 # Password validation
@@ -123,7 +118,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'process_queues': {
         'task': 'precedent.tasks.process_queue',
-        'schedule': 8
+        'schedule': 10
     },
 }
 
