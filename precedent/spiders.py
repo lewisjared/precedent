@@ -3,7 +3,7 @@ from logging import getLogger
 from django.conf import settings
 from github import Github, RateLimitExceededException, GithubException
 
-from precedent.models import Package, Repo, Owner
+from precedent.models import BadQuery, Package, Repo, Owner
 
 logger = getLogger(__name__)
 
@@ -43,7 +43,7 @@ class Spider(object):
 
 class GithubSpider(Spider):
     SEARCH_TERMS = {
-        Package.Source.npm: 'filename:package.json -path=node_modules'
+        Package.Source.npm: 'filename:package.json -path:node_modules'
     }
     per_page = 100
 
@@ -54,7 +54,7 @@ class GithubSpider(Spider):
         repo = item.repository
         owner = repo.owner
         owner, created = Owner.objects.update_or_create(remote_id=owner.id, source=Owner.Source.github, defaults={
-            'name': owner.name,
+            'name': owner.name or '',
             'type': Owner.OwnerType.organisation if owner.type == 'Organization' else Owner.OwnerType.user,
             'url': owner.url,
             'avatar_url': owner.avatar_url,
@@ -66,7 +66,7 @@ class GithubSpider(Spider):
             remote_id=repo.id,
             name=repo.name,
             full_name=repo.full_name,
-            description=repo.description,
+            description=repo.description or '',
             url=repo.url,
             source=Repo.Source.github,
             owner=owner
@@ -95,7 +95,7 @@ class GithubSpider(Spider):
             if search.totalCount > query['page'] * self.per_page:
                 if query['page'] == 10:
                     # We have ran out of search queries
-                    raise QueryException(query, 'too many results')
+                    BadQuery.objects.create(query=query)
 
                 new_query = {
                     'type': query['type'],
@@ -109,7 +109,7 @@ class GithubSpider(Spider):
             raise QueryException(query, 'rate limit exceeded. Requeue and try again')
 
         except GithubException as e:
-            if e.data().get("message").lower().startswith('You have triggered an abuse detection mechanism'):
+            if e.data.get("message").lower().startswith('you have triggered an abuse detection mechanism'):
                 logger.warning('Rate limit exceeded. Requeue and try again')
                 raise QueryException(query, 'rate limit exceeded. Requeue and try again')
 
