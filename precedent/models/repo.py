@@ -13,7 +13,7 @@ class Repo(AddedModifiedModel):
     full_name = models.TextField()
     owner = models.ForeignKey('precedent.Owner', on_delete=models.CASCADE)
 
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True, default='')
     url = models.URLField()
     source = models.CharField(max_length=2, choices=Source.choices, default=Source.github)
 

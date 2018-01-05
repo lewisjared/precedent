@@ -12,7 +12,8 @@ class Owner(models.Model):
         github = ChoiceItem('gh')
 
     remote_id = models.IntegerField()
-    name = models.TextField()
+    login = models.TextField()
+    name = models.TextField(blank=True, default='')
     type = models.CharField(max_length=1, choices=OwnerType.choices)
     url = models.URLField()
     avatar_url = models.URLField(null=True)
