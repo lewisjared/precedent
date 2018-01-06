@@ -122,7 +122,7 @@ GITHUB_ACCESS_TOKEN = os.environ.get('GITHUB_ACCESS_TOKEN')
 
 RAVEN_CONFIG = {
     'dsn': os.environ.get('RAVEN_DSN'),
-    'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+    'release': os.environ.get('GIT_SHA')
 }
 
 # Try and override some settings in debug mode
