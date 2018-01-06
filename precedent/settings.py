@@ -117,3 +117,9 @@ CELERY_BEAT_SCHEDULE = {
 
 # GITHUB SETTINGS
 GITHUB_ACCESS_TOKEN = os.environ.get('GITHUB_ACCESS_TOKEN')
+
+# Try and override some settings in debug mode
+try:
+    from local_settings import *
+except ImportError:
+    pass
