@@ -2,6 +2,7 @@ import os
 from datetime import timedelta
 
 import dj_database_url
+import raven
 from celery.schedules import crontab
 from dotenv import load_dotenv, find_dotenv
 
@@ -117,6 +118,11 @@ CELERY_BEAT_SCHEDULE = {
 
 # GITHUB SETTINGS
 GITHUB_ACCESS_TOKEN = os.environ.get('GITHUB_ACCESS_TOKEN')
+
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('RAVEN_DSN'),
+    'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+}
 
 # Try and override some settings in debug mode
 try:
