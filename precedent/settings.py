@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'rest_framework',
     'django_celery_beat',
+    'raven.contrib.django.raven_compat',
 ]
 
 MIDDLEWARE = [
